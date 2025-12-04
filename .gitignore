@@ -47,7 +47,7 @@ go/quickstart
 docker-compose.local*.yml
 
 *.iml
-.env
+.env*
 .idea
 
 #vscode
@@ -55,3 +55,5 @@ docker-compose.local*.yml
 
 #Python virtual nv
 python/venv/*
+
+link.html

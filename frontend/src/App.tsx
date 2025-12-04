@@ -1,16 +1,17 @@
-import React, { useEffect, useContext, useCallback } from "react";
+import React, { useEffect, useContext, useCallback, useState } from "react";
+import Button from "plaid-threads/Button";
 
 import Header from "./Components/Headers";
-import Products from "./Components/ProductTypes/Products";
-import Items from "./Components/ProductTypes/Items";
+import ItemsList from "./Components/ItemsList";
 import Context from "./Context";
 
 import styles from "./App.module.scss";
-import { Products as PlaidProducts } from "plaid";
 
 const App = () => {
   const { linkSuccess, isPaymentInitiation, itemId, dispatch } =
     useContext(Context);
+  const [showItemsList, setShowItemsList] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const getInfo = useCallback(async () => {
     const response = await fetch("/api/info", { method: "POST" });
@@ -100,7 +101,6 @@ const App = () => {
 
   useEffect(() => {
     const init = async () => {
-      const { paymentInitiation, isUserTokenFlow } = await getInfo(); // used to determine which path to take when generating token
       // do not generate a new token for OAuth redirect; instead
       // setLinkToken from localStorage
       if (window.location.href.includes("?oauth_state_id=")) {
@@ -113,23 +113,37 @@ const App = () => {
         return;
       }
 
-      if (isUserTokenFlow) {
-        await generateUserToken();
-      }
-      generateToken(paymentInitiation);
+      // Don't generate token on load - wait for user to click "Launch Link"
+      // Token will be generated when user selects products
+      await getInfo();
     };
     init();
-  }, [dispatch, generateToken, generateUserToken, getInfo]);
+  }, [dispatch, getInfo]);
+
+  // When link is successful, show items list and refresh it
+  useEffect(() => {
+    if (linkSuccess) {
+      setShowItemsList(true);
+      setRefreshTrigger(prev => prev + 1);
+    }
+  }, [linkSuccess]);
 
   return (
     <div className={styles.App}>
       <div className={styles.container}>
         <Header />
-        {linkSuccess && (
-          <>
-            <Products />
-            {!isPaymentInitiation && itemId && <Items />}
-          </>
+        {!showItemsList && (
+          <div className={styles.viewAccountsButton}>
+            <Button onClick={() => setShowItemsList(true)} large>
+              View Linked Accounts
+            </Button>
+          </div>
+        )}
+        {showItemsList && (
+          <ItemsList 
+            onBack={() => setShowItemsList(false)} 
+            refreshTrigger={refreshTrigger}
+          />
         )}
       </div>
     </div>

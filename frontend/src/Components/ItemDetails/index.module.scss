@@ -1,0 +1,169 @@
+@import "~plaid-threads/scss/variables";
+
+.container {
+  width: 100%;
+  margin-top: 2 * $unit;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2 * $unit;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2 * $unit;
+}
+
+.section {
+  border: 1px solid $black200;
+  border-radius: 8px;
+  padding: 2 * $unit;
+  background: white;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 1.5 * $unit 0;
+  padding-bottom: 1 * $unit;
+  border-bottom: 1px solid $black200;
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1 * $unit;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5 * $unit 0;
+  font-size: 14px;
+}
+
+.label {
+  font-weight: 500;
+  color: $black600;
+}
+
+.value {
+  color: $black1000;
+  text-align: right;
+  word-break: break-all;
+}
+
+.valueContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5 * $unit;
+  justify-content: flex-end;
+}
+
+.tokenContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5 * $unit;
+  justify-content: flex-end;
+}
+
+.eyeButton,
+.copyButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25 * $unit;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: 2px solid $black200;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.accountsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5 * $unit;
+}
+
+.accountCard {
+  border: 1px solid $black200;
+  border-radius: 6px;
+  padding: 1.5 * $unit;
+  background: #f9f9f9;
+}
+
+.accountHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1 * $unit;
+  padding-bottom: 1 * $unit;
+  border-bottom: 1px solid $black200;
+}
+
+.accountName {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.accountType {
+  font-size: 12px;
+  color: $black600;
+  text-transform: capitalize;
+}
+
+.accountBalances {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5 * $unit;
+}
+
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.balanceLabel {
+  font-weight: 500;
+  color: $black600;
+}
+
+.balanceValue {
+  font-weight: 600;
+  color: $black1000;
+}
+
+.deleteButton {
+  background-color: #dc3545 !important;
+  color: white !important;
+  border-color: #dc3545 !important;
+
+  &:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
+  }
+}
+

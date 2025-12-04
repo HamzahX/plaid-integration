@@ -1,0 +1,67 @@
+@import "~plaid-threads/scss/variables";
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  padding: 3 * $unit;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 2 * $unit 0;
+}
+
+.warningList {
+  margin: 1 * $unit 0;
+  padding-left: 2 * $unit;
+}
+
+.itemId {
+  margin: 2 * $unit 0;
+  padding: 1 * $unit;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1 * $unit;
+  margin-top: 2 * $unit;
+}
+
+.deleteButton {
+  background-color: #dc3545 !important;
+  color: white !important;
+  border-color: #dc3545 !important;
+
+  &:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
+  }
+}
+

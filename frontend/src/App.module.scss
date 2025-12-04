@@ -14,3 +14,10 @@ $threads-font-path: "~plaid-threads/fonts";
   max-width: 120 * $unit;
   margin: 0 auto;
 }
+
+.viewAccountsButton {
+  margin: 2 * $unit 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

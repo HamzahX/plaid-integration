@@ -6,7 +6,29 @@ x-environment:
   PLAID_COUNTRY_CODES: ${PLAID_COUNTRY_CODES}
   PLAID_REDIRECT_URI: ${PLAID_REDIRECT_URI}
   PLAID_ENV: ${PLAID_ENV}
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_NAME: ${DB_NAME:-plaid_quickstart}
+  DB_USER: ${DB_USER:-plaid_user}
+  DB_PASSWORD: ${DB_PASSWORD:-plaid_password}
 services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-plaid_quickstart}
+      POSTGRES_USER: ${DB_USER:-plaid_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-plaid_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - quickstart
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-plaid_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   go:
     networks:
       - "quickstart"
@@ -33,7 +55,10 @@ services:
     networks:
       - "quickstart"
     depends_on:
-      - "frontend"
+      postgres:
+        condition: service_healthy
+      frontend:
+        condition: service_started
     build:
       context: .
       dockerfile: ./node/Dockerfile
@@ -70,7 +95,9 @@ services:
     build:
       context: .
       dockerfile: ./frontend/Dockerfile
-    ports: ["3000:3000"]
+    ports: ["4000:3000"]
 networks:
   quickstart:
     name: quickstart
+volumes:
+  postgres_data:

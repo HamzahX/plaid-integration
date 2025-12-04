@@ -1,0 +1,139 @@
+@import "~plaid-threads/scss/variables";
+
+.container {
+  width: 100%;
+  margin-top: 2 * $unit;
+}
+
+.backButtonContainer {
+  margin-bottom: 2 * $unit;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2 * $unit;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.itemsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2 * $unit;
+  margin-top: 2 * $unit;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.itemCard {
+  border: 1px solid $black200;
+  border-radius: 8px;
+  padding: 2 * $unit;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5 * $unit;
+  padding-bottom: 1 * $unit;
+  border-bottom: 1px solid $black200;
+}
+
+.institutionName {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: $black1000;
+}
+
+.errorBadge {
+  background-color: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.itemDetails {
+  margin-bottom: 1.5 * $unit;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5 * $unit;
+  font-size: 14px;
+}
+
+.label {
+  font-weight: 500;
+  color: $black600;
+}
+
+.value {
+  color: $black1000;
+  text-align: right;
+}
+
+.errorValue {
+  color: #ff4444;
+  text-align: right;
+  font-weight: 500;
+}
+
+.itemActions {
+  display: flex;
+  gap: 1 * $unit;
+  margin-top: 1.5 * $unit;
+  padding-top: 1.5 * $unit;
+  border-top: 1px solid $black200;
+  width: 100%;
+  min-width: 0;
+  
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 0;
+  }
+  
+  button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.deleteButton {
+  background-color: #dc3545 !important;
+  color: white !important;
+  border-color: #dc3545 !important;
+
+  &:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
+  }
+}
+

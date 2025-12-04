@@ -9,6 +9,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const moment = require('moment');
 const cors = require('cors');
+const { initializeDatabase, testConnection, Item } = require('./db');
 
 const APP_PORT = process.env.APP_PORT || 8000;
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
@@ -101,13 +102,19 @@ app.post('/api/info', function (request, response, next) {
 app.post('/api/create_link_token', function (request, response, next) {
   Promise.resolve()
     .then(async function () {
+      // Get products from request body or fall back to env var
+      const requestProducts = request.body.products;
+      const products = requestProducts && Array.isArray(requestProducts) 
+        ? requestProducts 
+        : PLAID_PRODUCTS;
+      
       const configs = {
         user: {
           // This should correspond to a unique id for the current user.
           client_user_id: 'user-id',
         },
         client_name: 'Plaid Quickstart',
-        products: PLAID_PRODUCTS,
+        products: products,
         country_codes: PLAID_COUNTRY_CODES,
         language: 'en',
       };
@@ -119,7 +126,7 @@ app.post('/api/create_link_token', function (request, response, next) {
       if (PLAID_ANDROID_PACKAGE_NAME !== '') {
         configs.android_package_name = PLAID_ANDROID_PACKAGE_NAME;
       }
-      if (PLAID_PRODUCTS.includes(Products.Statements)) {
+      if (products.includes(Products.Statements)) {
         const statementConfig = {
           end_date: moment().format('YYYY-MM-DD'),
           start_date: moment().subtract(30, 'days').format('YYYY-MM-DD'),
@@ -127,7 +134,7 @@ app.post('/api/create_link_token', function (request, response, next) {
         configs.statements = statementConfig;
       }
 
-      if (PLAID_PRODUCTS.some(product => product.startsWith("cra_"))) {
+      if (products.some(product => product.startsWith("cra_"))) {
         configs.user_token = USER_TOKEN;
         configs.cra_options = {
           days_requested: 60
@@ -248,14 +255,73 @@ app.post(
 // https://plaid.com/docs/#exchange-token-flow
 app.post('/api/set_access_token', function (request, response, next) {
   PUBLIC_TOKEN = request.body.public_token;
+  const user_id = request.body.user_id || 'default_user';
+  let products = PLAID_PRODUCTS;
+  
+  // Handle products from request (can be comma-separated string or array)
+  if (request.body.products) {
+    if (typeof request.body.products === 'string') {
+      products = request.body.products.split(',').map(p => p.trim());
+    } else if (Array.isArray(request.body.products)) {
+      products = request.body.products;
+    }
+  }
+  
   Promise.resolve()
     .then(async function () {
+      // Exchange public token for access token
       const tokenResponse = await client.itemPublicTokenExchange({
         public_token: PUBLIC_TOKEN,
       });
       prettyPrintResponse(tokenResponse);
+      
       ACCESS_TOKEN = tokenResponse.data.access_token;
       ITEM_ID = tokenResponse.data.item_id;
+      
+      // Get item information to retrieve institution details
+      let institution_id = null;
+      let institution_name = null;
+      
+      try {
+        const itemResponse = await client.itemGet({
+          access_token: ACCESS_TOKEN,
+        });
+        
+        institution_id = itemResponse.data.item.institution_id;
+        
+        // Get institution name
+        if (institution_id) {
+          const instResponse = await client.institutionsGetById({
+            institution_id: institution_id,
+            country_codes: PLAID_COUNTRY_CODES,
+          });
+          institution_name = instResponse.data.institution.name;
+        }
+      } catch (error) {
+        console.error('Error fetching institution details:', error.message);
+        // Continue even if we can't get institution details
+      }
+      
+      // Save to database
+      try {
+        const itemData = {
+          user_id: user_id,
+          item_id: ITEM_ID,
+          access_token: ACCESS_TOKEN, // TODO: Add encryption later
+          environment: PLAID_ENV, // Store the environment
+          institution_id: institution_id,
+          institution_name: institution_name,
+          products: Array.isArray(products) ? products : [products],
+          country_codes: PLAID_COUNTRY_CODES,
+        };
+        
+        await Item.create(itemData);
+        console.log('✅ Item saved to database:', ITEM_ID, 'in environment:', PLAID_ENV);
+      } catch (dbError) {
+        console.error('⚠️  Error saving to database:', dbError.message);
+        // Continue even if database save fails (backward compatibility)
+      }
+      
       response.json({
         // the 'access_token' is a private token, DO NOT pass this token to the frontend in your production environment
         access_token: ACCESS_TOKEN,
@@ -435,6 +501,163 @@ app.get('/api/item', function (request, response, next) {
     .catch(next);
 });
 
+// Get all items for a user (or all items if no user_id specified)
+app.get('/api/items', function (request, response, next) {
+  Promise.resolve()
+    .then(async function () {
+      const user_id = request.query.user_id || 'default_user';
+      // Filter items by current environment to only show items from the current Plaid environment
+      const items = await Item.findByUserId(user_id, PLAID_ENV);
+      
+      // Return items without access_token for security
+      const safeItems = items.map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        item_id: item.item_id,
+        institution_id: item.institution_id,
+        institution_name: item.institution_name,
+        products: item.products,
+        country_codes: item.country_codes,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        last_successful_update: item.last_successful_update,
+        error_code: item.error_code,
+        error_message: item.error_message,
+        environment: item.environment,
+      }));
+      
+      response.json({ items: safeItems });
+    })
+    .catch(next);
+});
+
+// Get specific item details by item_id
+app.get('/api/items/:item_id', function (request, response, next) {
+  Promise.resolve()
+    .then(async function () {
+      const { item_id } = request.params;
+      // Filter by current environment to ensure we only access items from the current Plaid environment
+      const item = await Item.findByItemId(item_id, PLAID_ENV);
+      
+      if (!item) {
+        response.status(404).json({ error: 'Item not found' });
+        return;
+      }
+      
+      // Optionally fetch current data from Plaid
+      let accounts = null;
+      let itemDetails = null;
+      let institutionDetails = null;
+      
+      try {
+        // Get item details from Plaid
+        const itemResponse = await client.itemGet({
+          access_token: item.access_token,
+        });
+        itemDetails = itemResponse.data.item;
+        
+        // Get institution details
+        if (itemDetails.institution_id) {
+          const instResponse = await client.institutionsGetById({
+            institution_id: itemDetails.institution_id,
+            country_codes: PLAID_COUNTRY_CODES,
+          });
+          institutionDetails = instResponse.data.institution;
+        }
+        
+        // Get accounts (without balances)
+        // Note: We're not fetching balances to avoid showing money amounts
+        // If you need accounts, you can get them from other endpoints that don't include balances
+        
+        // Update last_successful_update
+        await Item.update(item_id, {
+          last_successful_update: new Date(),
+          error_code: null,
+          error_message: null,
+        });
+      } catch (error) {
+        console.error('Error fetching Plaid data:', error.message);
+        // Update error status
+        let errorCode = 'UNKNOWN_ERROR';
+        let errorMessage = error.message;
+        
+        if (error.response && error.response.data) {
+          errorCode = error.response.data.error_code || errorCode;
+          errorMessage = error.response.data.error_message || errorMessage;
+        }
+        
+        await Item.update(item_id, {
+          error_code: errorCode,
+          error_message: errorMessage,
+        });
+      }
+      
+      // Return item data including access_token (for display purposes)
+      response.json({
+        id: item.id,
+        user_id: item.user_id,
+        item_id: item.item_id,
+        access_token: item.access_token, // Include access token for display
+        institution_id: item.institution_id,
+        institution_name: item.institution_name,
+        products: item.products,
+        country_codes: item.country_codes,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        last_successful_update: item.last_successful_update,
+        error_code: item.error_code,
+        error_message: item.error_message,
+        item: itemDetails,
+        institution: institutionDetails,
+        accounts: accounts,
+      });
+    })
+    .catch(next);
+});
+
+// Delete an item (removes from both Plaid and database)
+app.delete('/api/items/:item_id', function (request, response, next) {
+  Promise.resolve()
+    .then(async function () {
+      const { item_id } = request.params;
+      
+      // Find item in database (filtered by current environment)
+      const item = await Item.findByItemId(item_id, PLAID_ENV);
+      
+      if (!item) {
+        response.status(404).json({ error: 'Item not found' });
+        return;
+      }
+      
+      // Remove item from Plaid first
+      try {
+        await client.itemRemove({
+          access_token: item.access_token,
+        });
+        console.log('✅ Item removed from Plaid:', item_id);
+      } catch (error) {
+        console.error('⚠️  Error removing item from Plaid:', error.message);
+        // Continue with database deletion even if Plaid removal fails
+        // (item might already be removed or invalid)
+      }
+      
+      // Delete from database (filtered by current environment)
+      const deletedItem = await Item.delete(item_id, PLAID_ENV);
+      
+      if (!deletedItem) {
+        response.status(404).json({ error: 'Item not found in database' });
+        return;
+      }
+      
+      response.json({
+        success: true,
+        message: 'Item removed successfully',
+        item_id: item_id,
+      });
+    })
+    .catch(next);
+});
+
 // Retrieve an Item's accounts
 // https://plaid.com/docs/#accounts
 app.get('/api/accounts', function (request, response, next) {
@@ -556,8 +779,31 @@ app.get('/api/income/verification/paystubs', function (request, response, next) 
     .catch(next);
 })
 
-const server = app.listen(APP_PORT, function () {
-  console.log('plaid-quickstart server listening on port ' + APP_PORT);
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Test database connection
+    const connected = await testConnection();
+    if (!connected) {
+      console.error('⚠️  Database connection failed, but continuing...');
+    } else {
+      // Initialize schema
+      await initializeDatabase();
+    }
+  } catch (error) {
+    console.error('⚠️  Database initialization error:', error.message);
+    console.log('⚠️  Continuing without database...');
+  }
+
+  const server = app.listen(APP_PORT, function () {
+    console.log('plaid-quickstart server listening on port ' + APP_PORT);
+  });
+}
+
+// Start the server
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });
 
 const prettyPrintResponse = (response) => {
