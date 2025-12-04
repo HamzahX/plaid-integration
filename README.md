@@ -29,12 +29,6 @@ For a more in-depth Transactions tutorial, see the [Transactions tutorial](https
   - [Run without Docker](#run-without-docker)
     - [Pre-requisites](#pre-requisites)
     - [1. Running the backend](#1-running-the-backend)
-      - [Node](#node)
-      - [Python](#python)
-      - [Ruby](#ruby)
-      - [Go](#go)
-      - [Java](#java)
-      - [.NET](#net) (community support only)
     - [2. Running the frontend](#2-running-the-frontend)
   - [Run with Docker](#run-with-docker)
     - [Pre-requisites](#pre-requisites-1)
@@ -87,7 +81,7 @@ the dashboard: [https://dashboard.plaid.com/developers/keys](https://dashboard.p
 
 ## 3. Run the Quickstart
 
-There are two ways to run the various language quickstarts in this repository. You can choose to run the
+There are two ways to run the quickstart. You can choose to run the
 code directly or you can run it in Docker. If you would like to run the code via Docker, skip to the
 [Run with Docker](#run-with-docker) section.
 
@@ -95,9 +89,7 @@ code directly or you can run it in Docker. If you would like to run the code via
 
 #### Pre-requisites
 
-- The language you intend to use is installed on your machine and available at your command line.
-  This repo should generally work with active LTS versions of each language such as node >= 14,
-  python >= 3.8, ruby >= 2.6, etc.
+- Node.js >= 14 installed on your machine and available at your command line
 - Your environment variables populated in `.env`
 - [npm](https://www.npmjs.com/get-npm)
 - If using Windows, a command line utility capable of running basic Unix shell commands
@@ -106,71 +98,13 @@ code directly or you can run it in Docker. If you would like to run the code via
 
 Once started with one of the commands below, the quickstart will be running on http://localhost:8000 for the backend. Enter the additional commands in step 2 to run the frontend which will run on http://localhost:3000.
 
-##### Node
+##### Backend
 
 ```bash
-$ cd ./node
+$ cd ./backend
 $ npm install
 $ ./start.sh
 ```
-
-##### Python
-
-**:warning: As `python2` has reached its end of life, only `python3` is supported.**
-
-```bash
-cd ./python
-
-# If you use virtualenv
-# virtualenv venv
-# source venv/bin/activate
-
-pip3 install -r requirements.txt
-./start.sh
-```
-
-If you get this error message:
-
-```txt
-ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:749)
-```
-
-You may need to run the following command in your terminal for your particular version of python in order to install SSL certificates:
-
-```bash
-# examples:
-open /Applications/Python\ 3.9/Install\ Certificates.command
-# or
-open /Applications/Python\ 3.6/Install\ Certificates.command
-```
-
-##### Ruby
-
-```bash
-cd ./ruby
-bundle
-./start.sh
-```
-
-##### Go
-
-```bash
-cd ./go
-go build
-./start.sh
-```
-
-##### Java
-
-```bash
-cd ./java
-mvn clean package
-./start.sh
-```
-
-##### .NET
-
-A community-supported implementation of the Plaid Quickstart using the [Going.Plaid](https://github.com/viceroypenguin/Going.Plaid) client library can be found at [PlaidQuickstartBlazor](https://github.com/jcoliz/PlaidQuickstartBlazor). Note that Plaid does not provide first-party support for .NET client libraries and that this Quickstart and client library are not created, reviewed, or supported by Plaid. 
 
 #### 2. Running the frontend
 
@@ -197,8 +131,7 @@ There are three basic `make` commands available
 - `logs`: tails logs
 - `stop`: stops the container
 
-Each of these should be used with a `language` argument, which is one of `node`, `python`, `ruby`,
-`java`, or `go`. If unspecified, the default is `node`.
+The quickstart uses a single backend service.
 
 ##### Start the container
 
@@ -208,8 +141,8 @@ make up language=node
 
 The quickstart backend is now running on http://localhost:8000 and frontend on http://localhost:3000.
 
-If you make changes to one of the server files such as `index.js`, `server.go`, etc, or to the
-`.env` file, simply run `make up language=node` again to rebuild and restart the container.
+If you make changes to one of the server files such as `index.js`, or to the
+`.env` file, simply run `make up` again to rebuild and restart the container.
 
 If you experience a Docker connection error when running the command above, try the following:
 
@@ -219,13 +152,13 @@ If you experience a Docker connection error when running the command above, try 
 ##### View the logs
 
 ```bash
-make logs language=node
+make logs
 ```
 
 ##### Stop the container
 
 ```bash
-make stop language=node
+make stop
 ```
 
 ## Test credentials
@@ -313,11 +246,7 @@ may still get an invalid certificate warning on your browser. If so, click on "a
 [quickstart]: https://plaid.com/docs/quickstart
 [libraries]: https://plaid.com/docs/api/libraries
 [payment-initiation]: https://plaid.com/docs/payment-initiation/
-[node-example]: /node
-[ruby-example]: /ruby
-[python-example]: /python
-[java-example]: /java
-[go-example]: /go
+[backend-example]: /backend
 [docker]: https://www.docker.com
 [dashboard-api-section]: https://dashboard.plaid.com/developers/api
 [contact-sales]: https://plaid.com/contact
