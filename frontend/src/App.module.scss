@@ -21,3 +21,18 @@ $threads-font-path: "~plaid-threads/fonts";
   display: flex;
   justify-content: center;
 }
+
+.productionBanner {
+  width: 100%;
+  padding: 1 * $unit;
+  background-color: #fff3cd;
+  border-bottom: 2px solid #ffc107;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  
+  > * {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}

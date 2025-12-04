@@ -13,6 +13,7 @@ interface QuickstartState {
   isError: boolean;
   backend: boolean;
   products: string[];
+  environment: string | null;
   linkTokenError: {
     error_message: string;
     error_code: string;
@@ -33,6 +34,7 @@ const initialState: QuickstartState = {
   isError: false,
   backend: true,
   products: ["transactions"],
+  environment: null,
   linkTokenError: {
     error_type: "",
     error_code: "",

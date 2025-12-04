@@ -1,5 +1,6 @@
 import React, { useEffect, useContext, useCallback, useState } from "react";
 import Button from "plaid-threads/Button";
+import Callout from "plaid-threads/Callout";
 
 import Header from "./Components/Headers";
 import ItemsList from "./Components/ItemsList";
@@ -8,10 +9,12 @@ import Context from "./Context";
 import styles from "./App.module.scss";
 
 const App = () => {
-  const { linkSuccess, isPaymentInitiation, itemId, dispatch } =
+  const { linkSuccess, isPaymentInitiation, itemId, dispatch, environment } =
     useContext(Context);
   const [showItemsList, setShowItemsList] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  const isProduction = environment === 'production';
 
   const getInfo = useCallback(async () => {
     const response = await fetch("/api/info", { method: "POST" });
@@ -38,6 +41,7 @@ const App = () => {
         isPaymentInitiation: paymentInitiation,
         isCraProductsExclusively: isCraProductsExclusively,
         isUserTokenFlow: isUserTokenFlow,
+        environment: data.environment || null,
       },
     });
     return { paymentInitiation, isUserTokenFlow };
@@ -130,6 +134,15 @@ const App = () => {
 
   return (
     <div className={styles.App}>
+      {isProduction && (
+        <div className={styles.productionBanner}>
+          <Callout warning>
+            <strong>⚠️ PRODUCTION MODE</strong> - You are connected to Plaid's production environment. 
+            All actions will result in <strong>real, billable charges</strong>. Linking accounts will 
+            start monthly subscription fees. Use with caution.
+          </Callout>
+        </div>
+      )}
       <div className={styles.container}>
         <Header />
         {!showItemsList && (

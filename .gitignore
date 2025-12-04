@@ -57,3 +57,5 @@ docker-compose.local*.yml
 python/venv/*
 
 link.html
+
+**/*.pem

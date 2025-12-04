@@ -94,6 +94,7 @@ app.post('/api/info', function (request, response, next) {
     item_id: ITEM_ID,
     access_token: ACCESS_TOKEN,
     products: PLAID_PRODUCTS,
+    environment: PLAID_ENV,
   });
 });
 
