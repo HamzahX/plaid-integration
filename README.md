@@ -39,8 +39,10 @@ cp .env.example .env
 
 Edit `.env` and add your Plaid credentials:
 - `PLAID_CLIENT_ID` - Your Plaid Client ID
-- `PLAID_SECRET` - Your Plaid Secret (sandbox or production)
-- `PLAID_ENV` - Environment: `sandbox` or `production`
+- `PLAID_SECRET` - Your Plaid Secret (sandbox)
+- `PLAID_ENV` - Environment: `sandbox`
+- `PLAID_PRODUCTS` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-products
+- `PLAID_COUNTRY_CODES` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-country-codes
 
 Optional database configuration (defaults are provided):
 - `DB_NAME` - Database name (default: `plaid_quickstart`)
@@ -63,6 +65,10 @@ The application will be available at:
 To run with production Plaid credentials:
 
 1. Create a `.env.prod` file with your production credentials
+- `PLAID_SECRET` - Your Plaid Secret (production)
+- `PLAID_ENV` - Environment: `production`
+- `PLAID_PRODUCTS` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-products
+- `PLAID_COUNTRY_CODES` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-country-codes
 2. Run:
 
 ```bash
