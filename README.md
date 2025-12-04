@@ -41,7 +41,7 @@ Edit `.env` and add your Plaid credentials:
 - `PLAID_CLIENT_ID` - Your Plaid Client ID
 - `PLAID_SECRET` - Your Plaid Secret (sandbox)
 - `PLAID_ENV` - Environment: `sandbox`
-- `PLAID_PRODUCTS` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-products
+- `PLAID_PRODUCTS` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-products. Note: These are defaults and are settable at runtime
 - `PLAID_COUNTRY_CODES` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-country-codes
 
 Optional database configuration (defaults are provided):
@@ -67,9 +67,33 @@ To run with production Plaid credentials:
 1. Create a `.env.prod` file with your production credentials
 - `PLAID_SECRET` - Your Plaid Secret (production)
 - `PLAID_ENV` - Environment: `production`
-- `PLAID_PRODUCTS` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-products
+- `PLAID_PRODUCTS` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-products. Note: These are defaults and are settable at runtime
 - `PLAID_COUNTRY_CODES` - Set as required. See: https://plaid.com/docs/api/link/?utm_source=chatgpt.com#link-token-create-request-country-codes
-2. Run:
+
+2. **Set up HTTPS certificates** (required for redirect URI in production)
+
+To test in Production with a redirect URI, you need to use HTTPS. The frontend is already configured to use HTTPS, but you need to create self-signed certificates:
+
+```bash
+cd frontend
+
+# Install mkcert (macOS with Homebrew)
+brew install mkcert
+
+# Install the local CA
+mkcert -install
+
+# Create certificate for localhost
+mkcert localhost
+```
+
+This will create `localhost.pem` and `localhost-key.pem` in the `frontend` folder. The `package.json` is already configured to use these certificates.
+
+**Note**: Self-signed certificates should be used for testing purposes only, never for actual deployments. On Windows, you may get an invalid certificate warning in your browser - click "Advanced" and proceed. Also ensure you access `https://localhost:4000` (not `http://`).
+
+For detailed instructions, see the [Plaid Quickstart HTTPS setup guide](https://github.com/plaid/quickstart#instructions-for-using-https-with-localhost).
+
+3. Run:
 
 ```bash
 make up-prod
