@@ -117,7 +117,7 @@ const Accounts = () => {
             {isProduction && (
                 <div className={styles.productionBanner}>
                     <Callout warning>
-                        <strong>⚠️ PRODUCTION MODE</strong> - You are connected to Plaid's production environment.
+                        <strong>PRODUCTION MODE</strong> - You are connected to Plaid's production environment.
                         All actions will result in <strong>real, billable charges</strong>. Linking accounts will
                         start monthly subscription fees. Use with caution.
                     </Callout>

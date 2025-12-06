@@ -52,7 +52,7 @@ Optional database configuration (defaults are provided):
 3. **Start the application**
 
 ```bash
-make up
+make sandbox
 ```
 
 The application will be available at:
@@ -96,15 +96,15 @@ For detailed instructions, see the [Plaid Quickstart HTTPS setup guide](https://
 3. Run:
 
 ```bash
-make up-prod
+make production
 ```
 
 **⚠️ Warning**: A production mode banner will be displayed at the top of the application warning about real, billable charges.
 
 ## Available Commands
 
-- `make up` - Build and start containers (sandbox mode)
-- `make up-prod` - Build and start containers (production mode)
+- `make sandbox` - Build and start containers (sandbox mode)
+- `make production` - Build and start containers (production mode)
 - `make logs` - View container logs
 - `make stop` - Stop all containers
 - `make build` - Build containers without starting
