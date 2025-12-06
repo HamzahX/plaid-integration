@@ -27,7 +27,7 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2 * $unit;
   margin-top: 2 * $unit;
-  
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
@@ -103,19 +103,21 @@
 
 .itemActions {
   display: flex;
-  gap: 1 * $unit;
+  gap: 16px;
+  /* Explicit gap */
   margin-top: 1.5 * $unit;
   padding-top: 1.5 * $unit;
   border-top: 1px solid $black200;
   width: 100%;
   min-width: 0;
-  
-  > * {
-    flex: 1 1 0;
-    min-width: 0;
-    width: 0;
+
+  >* {
+    flex: 1;
+    /* Allow growing */
+    min-width: unset;
+    /* Unset min-width as requested */
   }
-  
+
   button {
     width: 100%;
     box-sizing: border-box;
@@ -136,4 +138,3 @@
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
   }
 }
-

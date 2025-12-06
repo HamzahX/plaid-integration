@@ -22,7 +22,7 @@ const Link = () => {
         if (selectedProducts) {
           body.append('products', selectedProducts.join(','));
         }
-        
+
         const response = await fetch("/api/set_access_token", {
           method: "POST",
           headers: {
@@ -97,7 +97,7 @@ const Link = () => {
       open();
     }
   }, [ready, open, isOauth, linkToken]);
-  
+
   // Auto-open Link when token is set after product selection
   useEffect(() => {
     if (pendingOpen && linkToken && ready) {
@@ -113,7 +113,7 @@ const Link = () => {
     setSelectedProducts(products);
     setShowProductSelector(false);
     setPendingOpen(true);
-    
+
     // Generate link token with selected products
     const response = await fetch("/api/create_link_token", {
       method: "POST",
@@ -122,7 +122,7 @@ const Link = () => {
       },
       body: JSON.stringify({ products }),
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       if (data.link_token) {
@@ -149,7 +149,7 @@ const Link = () => {
   return (
     <>
       <Button type="button" large onClick={handleLaunchClick} disabled={!backend}>
-        Launch Link
+        Link New Account
       </Button>
       {showProductSelector && (
         <ProductSelector

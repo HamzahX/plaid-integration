@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Button from "plaid-threads/Button";
 import Callout from "plaid-threads/Callout";
+import { Link } from "react-router-dom"; // Import Link
 
 import styles from "./index.module.scss";
-import ItemDetails from "../ItemDetails";
 import DeleteItemModal from "../DeleteItemModal";
 
 interface Props {
@@ -29,7 +29,6 @@ const ItemsList = ({ onBack, refreshTrigger }: Props) => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const fetchItems = async () => {
@@ -106,20 +105,6 @@ const ItemsList = ({ onBack, refreshTrigger }: Props) => {
     );
   }
 
-  if (selectedItemId) {
-    return (
-      <ItemDetails
-        itemId={selectedItemId}
-        onBack={() => {
-          setSelectedItemId(null);
-          // Refresh the list when going back
-          fetchItems();
-        }}
-        onDelete={(itemId) => setItemToDelete(itemId)}
-      />
-    );
-  }
-
   return (
     <div className={styles.container}>
       {onBack && (
@@ -169,7 +154,7 @@ const ItemsList = ({ onBack, refreshTrigger }: Props) => {
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Last Update:</span>
                   <span className={styles.value}>
-                    {item.last_successful_update 
+                    {item.last_successful_update
                       ? formatDate(item.last_successful_update)
                       : "-"}
                   </span>
@@ -186,13 +171,11 @@ const ItemsList = ({ onBack, refreshTrigger }: Props) => {
               </div>
 
               <div className={styles.itemActions}>
-                <Button
-                  onClick={() => setSelectedItemId(item.item_id)}
-                  small
-                  secondary
-                >
-                  View Details
-                </Button>
+                <Link to={`/accounts/${item.item_id}`} style={{ textDecoration: 'none' }}>
+                  <Button small secondary>
+                    View Details
+                  </Button>
+                </Link>
                 <Button
                   onClick={() => setItemToDelete(item.item_id)}
                   small
